@@ -101,7 +101,11 @@ function convertToPackageSDP(transfomredClass: IYamlApiFile): PackageYamlModel {
     const ele: IYamlItem = transfomredClass.items[i];
     switch (ele.type) {
       case 'typealias':
-        // need generate typeAlias file for this
+        if (!packageModel.typeAliases) {
+          packageModel.typeAliases = [];
+        }
+
+        packageModel.typeAliases.push(convertToTypeAliasSDP(ele, element.uid, transfomredClass));
         break;
       case 'function':
         if (!packageModel.functions) {
@@ -120,7 +124,7 @@ function convertToPackageSDP(transfomredClass: IYamlApiFile): PackageYamlModel {
 
 function assignPackageModelFields(
   packageModel: PackageYamlModel,
-  name: 'classes' | 'interfaces' | 'enums' | 'typeAliases',
+  name: 'classes' | 'interfaces' | 'enums',
   uid: string
 ): void {
   if (!packageModel[name]) {
@@ -145,7 +149,8 @@ function convertToSDP(transfomredClass: IYamlApiFile): { model: CommonYamlModel;
       }
       return { model: convertToEnumSDP(transfomredClass), type: 'Enum' };
     case 'typealias':
-      return { model: convertToTypeAliasSDP(element, transfomredClass), type: 'TypeAlias' };
+      console.log('OG ' + element.uid);
+      return { model: convertToTypeAliasSDP(element, element.package!, transfomredClass), type: 'TypeAlias' };
     case 'package':
       return {
         model: convertToPackageSDP(transfomredClass),
@@ -187,9 +192,13 @@ function convertToEnumSDP(transfomredClass: IYamlApiFile): EnumYamlModel {
   return result;
 }
 
-function convertToTypeAliasSDP(element: IYamlItem, transfomredClass: IYamlApiFile): TypeAliasYamlModel {
+function convertToTypeAliasSDP(
+  element: IYamlItem,
+  packageName: string,
+  transfomredClass: IYamlApiFile
+): TypeAliasYamlModel {
   const result: TypeAliasYamlModel = {
-    ...convertCommonYamlModel(element, element.package!, transfomredClass)
+    ...convertCommonYamlModel(element, packageName, transfomredClass)
   } as TypeAliasYamlModel;
 
   if (element.syntax) {
