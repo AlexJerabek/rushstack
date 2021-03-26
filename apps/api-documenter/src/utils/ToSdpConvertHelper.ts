@@ -149,7 +149,6 @@ function convertToSDP(transfomredClass: IYamlApiFile): { model: CommonYamlModel;
       }
       return { model: convertToEnumSDP(transfomredClass), type: 'Enum' };
     case 'typealias':
-      console.log('OG ' + element.uid);
       return { model: convertToTypeAliasSDP(element, element.package!, transfomredClass), type: 'TypeAlias' };
     case 'package':
       return {
